@@ -1,47 +1,88 @@
 def update_quality(items)
-  items.each do |item|
-    if item.name != 'Aged Brie' && item.name != 'Backstage passes to a TAFKAL80ETC concert'
-      if item.quality > 0
-        if item.name != 'Sulfuras, Hand of Ragnaros'
+  QualityUpdater.new.update(items)
+end
+
+class QualityUpdater
+  def update(items)
+    items.each do |item|
+      updater = determine_updater(item)
+      updater.update(item)
+    end
+  end
+
+  private
+
+  def determine_updater(item)
+    case item.name
+    when 'Aged Brie'
+      AgedBrieUpdater.new
+    when 'Backstage passes to a TAFKAL80ETC concert'
+      BackstagePassUpdater.new
+    when 'Sulfuras, Hand of Ragnaros'
+      LegendaryUpdater.new
+    else
+      StandardUpdater.new
+    end
+  end
+
+  class StandardUpdater
+    def update(item)
+      if item.name != 'Backstage passes to a TAFKAL80ETC concert'
+        if item.quality > 0
+          if item.name != 'Sulfuras, Hand of Ragnaros'
+            item.quality -= 1
+          end
+        end
+      else
+      end
+
+      item.sell_in -= 1
+
+      if item.sell_in < 0
+        if item.quality > 0
           item.quality -= 1
         end
       end
-    else
-      if item.quality < 50
-        item.quality += 1
-        if item.name == 'Backstage passes to a TAFKAL80ETC concert'
-          if item.sell_in < 11
-            if item.quality < 50
-              item.quality += 1
-            end
-          end
-          if item.sell_in < 6
-            if item.quality < 50
-              item.quality += 1
-            end
-          end
-        end
-      end
     end
-    if item.name != 'Sulfuras, Hand of Ragnaros'
+  end
+
+  class AgedBrieUpdater
+    def update(item)
+      item.sell_in -= 1
+      item.quality += 1 if item.quality < 50
+      item.quality += 1 if item.quality < 50 && item.sell_in <= 0
+    end
+  end
+
+  class BackstagePassUpdater
+    def update(item)
+      update_quality(item)
       item.sell_in -= 1
     end
-    if item.sell_in < 0
-      if item.name != "Aged Brie"
-        if item.name != 'Backstage passes to a TAFKAL80ETC concert'
-          if item.quality > 0
-            if item.name != 'Sulfuras, Hand of Ragnaros'
-              item.quality -= 1
-            end
+
+    private
+
+    def update_quality(item)
+      if item.quality < 50
+        item.quality += 1
+        if item.sell_in < 11
+          if item.quality < 50
+            item.quality += 1
           end
-        else
-          item.quality = item.quality - item.quality
         end
-      else
-        if item.quality < 50
-          item.quality += 1
+        if item.sell_in < 6
+          if item.quality < 50
+            item.quality += 1
+          end
         end
       end
+
+      item.quality = 0 if item.sell_in <= 0
+    end
+  end
+
+  class LegendaryUpdater
+    def update(item)
     end
   end
 end
