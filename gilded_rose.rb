@@ -12,7 +12,15 @@ class QualityUpdater
 
   private
 
+  # # UPDATER_FOR = {
+  # #   'Aged Brie' => AgedBrieUpdater.new,
+  # #   'Backstage passes to a TAFKAL80ETC concert' => BackstagePassUpdater.new,
+  # #   'Sulfuras, Hand of Ragnaros' => LegendaryUpdater.new
+  # # }
+  #
   def determine_updater(item)
+  #   updater = UPDATER_FOR[item.name]
+
     case item.name
     when 'Aged Brie'
       AgedBrieUpdater.new
@@ -27,30 +35,26 @@ class QualityUpdater
 
   class StandardUpdater
     def update(item)
-      if item.name != 'Backstage passes to a TAFKAL80ETC concert'
-        if item.quality > 0
-          if item.name != 'Sulfuras, Hand of Ragnaros'
-            item.quality -= 1
-          end
-        end
-      else
-      end
-
+      update_quality(item)
       item.sell_in -= 1
+    end
 
-      if item.sell_in < 0
-        if item.quality > 0
-          item.quality -= 1
-        end
-      end
+    def update_quality(item)
+      adjustment = item.sell_in <= 0 ? -2 : -1
+      adjust_quality(item, adjustment)
+    end
+
+    def adjust_quality(item, amount)
+      item.quality += amount
+      item.quality = 0 if item.quality < 0
     end
   end
 
   class AgedBrieUpdater
     def update(item)
-      item.sell_in -= 1
       item.quality += 1 if item.quality < 50
       item.quality += 1 if item.quality < 50 && item.sell_in <= 0
+      item.sell_in -= 1
     end
   end
 
