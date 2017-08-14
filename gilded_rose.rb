@@ -18,13 +18,17 @@ class QualityUpdater
   end
 
   class StandardUpdater
+    def initialize
+      @degrade_amount = 1
+    end
+
     def update(item)
       update_quality(item)
       update_sell_in(item)
     end
 
     def update_quality(item)
-      adjustment = item.sell_in <= 0 ? -2 : -1
+      adjustment = item.sell_in <= 0 ? (-2 * degrade_amount) : -degrade_amount
       adjust_quality(item, adjustment)
     end
 
@@ -36,6 +40,10 @@ class QualityUpdater
       item.quality += amount
       item.quality = 0 if item.quality < 0
       item.quality = 50 if item.quality > 50
+    end
+
+    def degrade_amount
+      @degrade_amount || 1
     end
   end
 
@@ -60,10 +68,17 @@ class QualityUpdater
     end
   end
 
+  class ConjuredUpdater < StandardUpdater
+    def initialize
+      @degrade_amount = 2
+    end
+  end
+
   UPDATER_FOR = {
     'Aged Brie' => AgedBrieUpdater.new,
     'Backstage passes to a TAFKAL80ETC concert' => BackstagePassUpdater.new,
-    'Sulfuras, Hand of Ragnaros' => LegendaryUpdater.new
+    'Sulfuras, Hand of Ragnaros' => LegendaryUpdater.new,
+    'Conjured Mana Cake' => ConjuredUpdater.new
   }
 end
 

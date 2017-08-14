@@ -162,7 +162,6 @@ describe "#update_quality" do
     end
 
     context "conjured item" do
-      before { pending }
       Given(:name) { "Conjured Mana Cake" }
 
       Invariant { item.sell_in.should == initial_sell_in-1 }
@@ -173,7 +172,7 @@ describe "#update_quality" do
 
         context "at zero quality" do
           Given(:initial_quality) { 0 }
-          # Then { item.quality.should == initial_quality }
+          Then { item.quality.should == initial_quality }
         end
       end
 
@@ -183,7 +182,7 @@ describe "#update_quality" do
 
         context "at zero quality" do
           Given(:initial_quality) { 0 }
-          # Then { item.quality.should == initial_quality }
+          Then { item.quality.should == initial_quality }
         end
       end
 
@@ -193,7 +192,7 @@ describe "#update_quality" do
 
         context "at zero quality" do
           Given(:initial_quality) { 0 }
-          # Then { item.quality.should == initial_quality }
+          Then { item.quality.should == initial_quality }
         end
       end
     end
