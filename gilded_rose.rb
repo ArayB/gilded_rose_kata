@@ -12,31 +12,15 @@ class QualityUpdater
 
   private
 
-  # # UPDATER_FOR = {
-  # #   'Aged Brie' => AgedBrieUpdater.new,
-  # #   'Backstage passes to a TAFKAL80ETC concert' => BackstagePassUpdater.new,
-  # #   'Sulfuras, Hand of Ragnaros' => LegendaryUpdater.new
-  # # }
-  #
   def determine_updater(item)
-  #   updater = UPDATER_FOR[item.name]
-
-    case item.name
-    when 'Aged Brie'
-      AgedBrieUpdater.new
-    when 'Backstage passes to a TAFKAL80ETC concert'
-      BackstagePassUpdater.new
-    when 'Sulfuras, Hand of Ragnaros'
-      LegendaryUpdater.new
-    else
-      StandardUpdater.new
-    end
+    updater = UPDATER_FOR[item.name]
+    updater.nil? ? StandardUpdater.new : updater
   end
 
   class StandardUpdater
     def update(item)
       update_quality(item)
-      item.sell_in -= 1
+      update_sell_in(item)
     end
 
     def update_quality(item)
@@ -44,44 +28,30 @@ class QualityUpdater
       adjust_quality(item, adjustment)
     end
 
+    def update_sell_in(item)
+      item.sell_in -= 1
+    end
+
     def adjust_quality(item, amount)
       item.quality += amount
       item.quality = 0 if item.quality < 0
+      item.quality = 50 if item.quality > 50
     end
   end
 
-  class AgedBrieUpdater
-    def update(item)
-      item.quality += 1 if item.quality < 50
-      item.quality += 1 if item.quality < 50 && item.sell_in <= 0
-      item.sell_in -= 1
-    end
-  end
-
-  class BackstagePassUpdater
-    def update(item)
-      update_quality(item)
-      item.sell_in -= 1
-    end
-
-    private
-
+  class AgedBrieUpdater < StandardUpdater
     def update_quality(item)
-      if item.quality < 50
-        item.quality += 1
-        if item.sell_in < 11
-          if item.quality < 50
-            item.quality += 1
-          end
-        end
-        if item.sell_in < 6
-          if item.quality < 50
-            item.quality += 1
-          end
-        end
-      end
+      adjust_quality(item, 1)
+      adjust_quality(item, 1) if item.sell_in <= 0
+    end
+  end
 
-      item.quality = 0 if item.sell_in <= 0
+  class BackstagePassUpdater < StandardUpdater
+    def update_quality(item)
+      return item.quality = 0 if item.sell_in <= 0
+      adjust_quality(item, 1)
+      adjust_quality(item, 1) if item.sell_in < 11
+      adjust_quality(item, 1) if item.sell_in < 6
     end
   end
 
@@ -89,6 +59,12 @@ class QualityUpdater
     def update(item)
     end
   end
+
+  UPDATER_FOR = {
+    'Aged Brie' => AgedBrieUpdater.new,
+    'Backstage passes to a TAFKAL80ETC concert' => BackstagePassUpdater.new,
+    'Sulfuras, Hand of Ragnaros' => LegendaryUpdater.new
+  }
 end
 
 # DO NOT CHANGE THINGS BELOW -----------------------------------------
