@@ -1,4 +1,15 @@
+    # initial
     74.7: flog total
     37.4: flog/method average
 
     73.6: main#update_quality              gilded_rose.rb:1-42
+
+
+    # after refactoring
+    48.2: flog total
+     4.4: flog/method average
+
+    12.9: QualityUpdater::BackstagePassUpdater#update_quality gilded_rose.rb:50-54
+     6.3: QualityUpdater::StandardUpdater#adjust_quality gilded_rose.rb:35-38
+     5.5: QualityUpdater::AgedBrieUpdater#update_quality gilded_rose.rb:43-45
+     5.0: QualityUpdater#determine_updater gilded_rose.rb:15-18
